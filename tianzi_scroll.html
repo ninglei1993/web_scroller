@@ -26,6 +26,7 @@
 
     .scroller {
         width: 345vw;
+        position: relative;
     }
 
     .item {
@@ -38,12 +39,12 @@
     }
 
     .flowView {
-        height: 13vw;
-        width: 13vw;
-        border: 1px solid black;
+        height: 12vw;
+        width: 12vw;
+        border: 1px solid red;
         position: absolute;
-        left: 2vw;
-        top: 2vw;
+      left: 0;
+      top: 0;
     }
 
     .nextBtn {
@@ -62,7 +63,7 @@
             <div id="wrapper" class="wrapper">
                 <div class="scroller" id="scroller">
                     <div class="item" v-for="n in 25">{{n}}</div>
-                    <!-- <div class="flowView"></div> -->
+                    <div class="flowView"></div>
                 </div>
             </div>
         </div>
@@ -105,35 +106,22 @@
         velocity = Math.abs(velocity);
         // 根据速度判断滑动
         if (velocity > minV && distanceX > minX) {
-        	if(scrollPageIndex==0){
-        		return;
-        	}
-        	scrollPageIndex--;
+            if (scrollPageIndex == 0) {
+                return;
+            }
+            scrollPageIndex--;
             var currentOffset = $("#scroller").offset().left;
             $("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
         } else if (velocity > minV && distanceX < -1 * minX) {
-        	//从右向左滑动
-            if(scrollPageIndex==3){
-        		return;
-        	}
-        	scrollPageIndex++;
+            //从右向左滑动
+            if (scrollPageIndex == 3) {
+                return;
+            }
+            scrollPageIndex++;
             var currentOffset = $("#scroller").offset().left;
             $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
         }
 
-        // touchendX=moveX-$("#wrapper").offset().left;
-
-        // var touch = e.originalEvent.targetTouches[0];
-        // var touchx=e.changedTouches[0].clientX;
-        // moveX = getCanvasPos(touch).x;
-        // moveX = e.touches[0].clientX;
-        // distanceX = moveX - startX;
-        // var leftEdge = $(".item").eq(0).width() * 7;
-        // if (-100 < distanceX || distanceX < 100) {
-        //     $("#scroller").offset({ left: leftEdge });
-        //     startX = moveX;
-
-        // startX = e.touches[0].clientX;
     })
     </script>
 </body>
