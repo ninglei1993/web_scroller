@@ -76,10 +76,14 @@
 
     var startX;
     var moveX;
-    var distanceX;
+    var startTime;
+    var endTime;
+    var minV=300;// 最小滑动速度
+    var minX=150;// 最小滑动距离
     $("#scroller").on('touchstart', function(e) {
-        startX = e.touches[0].clientX-$("#wrapper").offset().left;
-        console.log(startX);
+    	startTime=new Date().getTime();
+        startX = e.touches[0].clientX;
+        console.log(startTime);
     })
 
     $("#scroller").on('touchmove', function(e) {
@@ -87,8 +91,17 @@
         moveX = e.touches[0].clientX;
     })
     $("#scroller").on('touchend', function(e) {
-    	console.log(e);
-    	touchendX=moveX-$("#wrapper").offset().left;
+    	var endX=e.changedTouches[0].clientX;
+    	var distanceX=endX-startX;
+    	endTime=new Date().getTime();
+    	var velocity=distanceX/((endTime-startTime)/1000);
+    	velocity= Math.abs(velocity);
+    	if(velocity>minV&&(distanceX>minX||distanceX<-1*minX)){
+    		console.log("xxxxx");
+    	}
+    	
+    	// touchendX=moveX-$("#wrapper").offset().left;
+
         // var touch = e.originalEvent.targetTouches[0];
         // var touchx=e.changedTouches[0].clientX;
         // moveX = getCanvasPos(touch).x;
@@ -98,7 +111,7 @@
         // if (-100 < distanceX || distanceX < 100) {
         //     $("#scroller").offset({ left: leftEdge });
         //     startX = moveX;
-        console.log("ssss"+touchendX);
+    
   		// startX = e.touches[0].clientX;
     })
 
