@@ -43,8 +43,8 @@
         width: 12vw;
         border: 1px solid red;
         position: absolute;
-      left: 0;
-      top: 0;
+        left: 0;
+        top: 0;
     }
 
     .nextBtn {
@@ -67,16 +67,14 @@
                 </div>
             </div>
         </div>
-        <div class="nextBtn" v-on:click="nextBtn()">下一个</div>
+        <div class="nextBtn" id="nextBtn">下一个</div>
     </div>
     <script type="text/javascript">
     var app = new Vue({
         el: "#app",
         data: {},
         methods: {
-            nextBtn: function() {
-                console.log("next....");
-            }
+
         }
     })
 
@@ -85,9 +83,17 @@
     var endTime;
     var minV = 300; // 最小滑动速度
     var minX = 150; // 最小滑动距离
-    var itemNum = 6; //完全显示的item 数量
+    var leftEdge = $("#wrapper").offset().left;
+
+
+    var itemPageNum = 5; //滚动一屏item的数量
+    var itemSize = 25; //25个格子
+
     var scrollPageIndex = 0; // 当前滑动到第几屏
-    var scrollPageWidth = $(".item").eq(0).width() * itemNum + itemNum; //每次滑动的宽度
+    var scrollItemIndex = 0; //当前选择框位置 
+    var scrollPageWidth = $(".item").eq(0).width() * itemPageNum + itemPageNum; //每次滑动的宽度
+    var pageSize =itemSize / itemPageNum - 1;
+
     $("#scroller").on('touchstart', function(e) {
         startTime = new Date().getTime();
         startX = e.touches[0].clientX;
@@ -114,7 +120,7 @@
             $("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
         } else if (velocity > minV && distanceX < -1 * minX) {
             //从右向左滑动
-            if (scrollPageIndex == 3) {
+            if (scrollPageIndex == pageSize) {
                 return;
             }
             scrollPageIndex++;
@@ -122,6 +128,35 @@
             $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
         }
 
+    })
+
+    $("#nextBtn").click(function() {
+        if (scrollItemIndex >= itemSize - 1) {
+      		// 最后一页
+        	if (scrollPageIndex!=pageSize) {
+                scrollPageIndex = pageSize;
+                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+            }
+        } else {
+            scrollItemIndex++; //高亮的格子
+
+            //滚动页面
+            var currentPageIndex = Math.floor(scrollItemIndex / itemPageNum);
+            if (currentPageIndex <= pageSize) {
+                scrollPageIndex = currentPageIndex;
+                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+            }
+            //滚动选择框
+            var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
+            $(".flowView").eq(0).offset({ left: currentItemLeft })
+        }
+
+    })
+
+    $(".item").each(function(index){
+    	$(this).click(function(){
+    		console.log(index);
+    	})
     })
     </script>
 </body>
