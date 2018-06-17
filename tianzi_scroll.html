@@ -92,7 +92,7 @@
     var scrollPageIndex = 0; // 当前滑动到第几屏
     var scrollItemIndex = 0; //当前选择框位置 
     var scrollPageWidth = $(".item").eq(0).width() * itemPageNum + itemPageNum; //每次滑动的宽度
-    var pageSize =itemSize / itemPageNum - 1;
+    var pageSize = itemSize / itemPageNum - 1;
 
     $("#scroller").on('touchstart', function(e) {
         startTime = new Date().getTime();
@@ -132,8 +132,8 @@
 
     $("#nextBtn").click(function() {
         if (scrollItemIndex >= itemSize - 1) {
-      		// 最后一页
-        	if (scrollPageIndex!=pageSize) {
+            // 最后一页
+            if (scrollPageIndex != pageSize) {
                 scrollPageIndex = pageSize;
                 $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
             }
@@ -141,9 +141,9 @@
             scrollItemIndex++; //高亮的格子
 
             //滚动页面
-            var currentPageIndex = Math.floor(scrollItemIndex / itemPageNum);
-            if (currentPageIndex <= pageSize) {
-                scrollPageIndex = currentPageIndex;
+            var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
+            if (needScrollPageIndex <= pageSize) {
+                scrollPageIndex = needScrollPageIndex;
                 $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
             }
             //滚动选择框
@@ -153,10 +153,19 @@
 
     })
 
-    $(".item").each(function(index){
-    	$(this).click(function(){
-    		console.log(index);
-    	})
+    $(".item").each(function(index) {
+        $(this).click(function() {
+            scrollItemIndex=index; //高亮的格子
+            //滚动页面
+            var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
+            if (needScrollPageIndex <= pageSize) {
+                scrollPageIndex = needScrollPageIndex;
+                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+            }
+            //滚动选择框
+            var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
+            $(".flowView").eq(0).offset({ left: currentItemLeft })
+        })
     })
     </script>
 </body>
