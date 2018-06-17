@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<style type="text/css">
+	body{
+		overflow: hidden;
+	}
+		.wrapper{
+			width: 375px;
+			margin-left: 37.5px;
+			margin-right: 37.5px;
+		}
+		button{
+			outline: none;
+		}
+		.container{
+			margin: 0 auto;
+			display: flex;
+		}
+		.container canvas{
+			background-color: yellow;
+		}
+		.container .oneCanvas,.container .threeCanvas{
+			background-color: lightpink;
+		}
+		.bigWrapper{
+			width: 300px;
+			height: 300px;
+			background: yellow;
+			margin-top: 75px;
+		}
+		.btnWrapper{
+			width: 300px;
+			display: flex;
+			justify-content: space-around;
+		}
+		.btnWrapper button{
+			width: 75px;
+			height: 36px;
+			background-color: lightpink;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+		.clearWrapper{
+			width: 300px;
+			text-align: right;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+
+/*		.resultCanvas{
+			background: lightgreen;
+		}*/
+
+		.nextBtn,.finishBtn{
+			display: inline-block;
+			background-color:#fcc7cb;
+			border:2px solid #fff;
+			border-radius:100px;
+			width:110px;
+			color:#fff;
+			box-shadow:0 1px 3px 0 #888;
+			font-size:16px;
+		/*	line-height:24px;
+			padding-top:12px;
+			padding-bottom:12px;*/
+		}
+
+		.clearBtn{
+			font-size: 12px;
+			line-height: 16px;
+			color: #ea9299;
+			margin-left: 4px;
+		}
+
+		.container{
+			position: relative;
+		}
+		.flowView {
+		  position: absolute;
+		  width: 75px;
+		  height: 75px;
+		  background: rgba(255, 255, 255, 0);
+		  top: 0;
+		  /* left: 75rpx; #6ec3e3 */
+		  border: 1px solid #6ec3e3;
+		}
+
+	</style>
+
+</head>
+<body>
+	<div class="wrapper">
+		<div class="container">
+			<div class="flowBg" style="background: url('tianzige/tianzi-group.png');background-size: cover;">
+			</div>
+			<canvas id="oneCanvas" class="oneCanvas" width="75px" height="75px" style="background: url('tianzige/tianzi-single.png');background-size: cover;"></canvas>
+			<canvas id="twoCanvas" class="twoCanvas" width="75px" height="75px" style="background: url('tianzige/tianzi-single.png');background-size: cover;"></canvas>
+			<canvas id="threeCanvas" class="threeCanvas" width="75px" height="75px" style="background: url('tianzige/tianzi-single.png');background-size: cover;"></canvas>
+			<canvas id="fourCanvas" class="fourCanvas" width="75px" height="75px" style="background: url('tianzige/tianzi-single.png');background-size: cover;"></canvas>
+			 <div class='flowView' id="flowView"></div>
+		</div>
+		<div class="clearWrapper">
+			 <image src='tianzige/clearBtn.png' style='display:inline-block;width:14px;height:14px;margin-right: 4px;'></image>
+			<span class="clearBtn" onclick="clearIt()">清除</span>
+		</div>
+<!-- 		<image src='../../../resource/tianzige/tianzi-big.png' style='width:100%;height:auto;position:absolute;top:0;left:0;right:0;bottom:0'></image> -->
+		<canvas id="bigCanvas" class="bigCanvas" width="300px" height="300px" style="background: url('tianzige/tianzi-big.png');background-size: cover;"></canvas>
+
+		<div class="btnWrapper">
+			<button class="nextBtn" onclick="nextOne()">下一个</button>
+			<button class="finishBtn" onclick="complete()">完成</button>
+		</div>
+
+		<canvas id="resultCanvas" class="resultCanvas"  width="300px" height="75px" style="display:none;background:#FAF4F2"></canvas>
+	</div>
+	<script type="text/javascript">
+
+		// var c=document.getElementById("myCanvas");
+		// var ctx=c.getContext("2d");
+		// ctx.moveTo(0,0);
+		// ctx.lineTo(200,100);
+		// ctx.stroke();
+	var currentIndex=0;
+	var ctxArr=[];
+	var currentCtx;
+	var ctxBig;
+	var ctxInfoArr=[];
+	var ctx1,ctx2,ctx3,ctx4;
+	var ctxResult;
+	var canvasResult;
+	var positionLeft=0;
+	$(function(){
+       	canvasBig=document.getElementById('bigCanvas');
+       	canvasResult=document.getElementById('resultCanvas');
+		ctx1 = document.getElementById('oneCanvas').getContext("2d");
+        ctx2=document.getElementById('twoCanvas').getContext("2d");
+       	ctx3=document.getElementById('threeCanvas').getContext("2d");
+        ctx4=document.getElementById('fourCanvas').getContext("2d");
+        ctxBig=document.getElementById('bigCanvas').getContext("2d");
+        ctxResult=document.getElementById('resultCanvas').getContext("2d");
+        ctxInfoArr=[{ctx:ctx1,src:''},{ctx:ctx2,src:''},{ctx:ctx3,src:''},{ctx:ctx4,src:''}];
+        currentCtx=ctxInfoArr[currentIndex].ctx;
+
+
+        console.log(ctxInfoArr);
+        var beginX,beginY;
+		var mousePressed;
+
+         $("#bigCanvas").on('touchstart',function(e) {
+         	  event.preventDefault();
+         	 var touch = e.originalEvent.targetTouches[0]; 
+
+     		 // var y = touch.pageY;
+        	mousePressed = true;
+			beginX=getCanvasPos(touch).x;
+        	beginY=getCanvasPos(touch).y;
+        	console.log(beginX,beginY);
+      	});
+     
+         $("#bigCanvas").on('touchmove',function(e) {
+         	  event.preventDefault();
+         	 var touch = e.originalEvent.targetTouches[0]; 
+        	if (mousePressed) {
+        		//drawWord 传入鼠标在canvas中的坐标
+ 				drawWord(getCanvasPos(touch).x,getCanvasPos(touch).y);
+        	}
+      	});
+
+
+        $("#bigCanvas").on('touchend',function(e) {
+        	  event.preventDefault();
+        	     mousePressed = false;
+      	});
+
+		function drawWord(x,y){
+			ctxBig.beginPath();
+            ctxBig.moveTo(beginX, beginY);
+            ctxBig.lineTo(x, y);
+            ctxBig.closePath();
+            ctxBig.stroke();
+            
+            console.log(x,y);
+            currentCtx.beginPath();
+            currentCtx.moveTo(beginX/4, beginY/4);
+            currentCtx.lineTo(x/4, y/4);
+            currentCtx.closePath();
+            currentCtx.stroke();
+
+            beginX=x;
+            beginY=y;
+
+		}
+
+		function getCanvasPos(e){
+	        var rect = canvasBig.getBoundingClientRect();   
+	        return {     
+	         x: (e.pageX - rect.left),    
+	         y: (e.pageY - rect.top)   
+	       };    
+		}
+    })
+
+	function nextOne(){
+
+		//先保存
+		var imgData=ctxBig.getImageData(0,0,300,300);
+		ctxInfoArr[currentIndex].src=imgData;
+
+		// currentCtx.putImageData(imgData,10,70);
+		currentIndex++;
+		if (currentIndex==4) {
+			currentIndex=0;
+		}
+		
+
+		//positionLeft:
+		positionLeft= currentIndex * 75 + 'px';
+		$("#flowView").attr('style','left:'+positionLeft);
+
+		currentCtx=ctxInfoArr[currentIndex].ctx;
+
+
+		if (ctxInfoArr[currentIndex].src) {
+			// ctxBig.clearRect(0,0,300,300);
+			ctxBig.clearRect(0,0,300,300);
+			ctxBig.putImageData(ctxInfoArr[currentIndex].src,0,0);
+		}else{
+			ctxBig.clearRect(0,0,300,300);
+		}
+	}
+
+	function clearIt(){
+		ctxBig.clearRect(0,0,300,300);
+		currentCtx.clearRect(0,0,75,75);
+		ctxInfoArr[currentIndex].src='';
+	}
+
+
+	function complete(){
+		var data1=ctx1.getImageData(0,0,75,75);
+		var data2=ctx2.getImageData(0,0,75,75);
+		var data3=ctx3.getImageData(0,0,75,75);
+		var data4=ctx4.getImageData(0,0,75,75);
+		ctxResult.putImageData(data1,0,0,0,0,75,75);
+		ctxResult.putImageData(data2,75,0,0,0,75,75);
+		ctxResult.putImageData(data3,150,0,0,0,75,75);
+		ctxResult.putImageData(data4,225,0,0,0,75,75);
+		// ctxResult.putImageData( data4, 75, 0,  0, 0,75, 75);
+		// var imgSrc = canvasResult.toDataURL();
+		// alert("image is-------"+imgSrc);
+	}
+	</script>
+
+</body>
+</html>

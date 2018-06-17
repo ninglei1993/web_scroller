@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <style type="text/css">
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    .scrollBox {
+        width: 100vw;
+        overflow-x: hidden;
+    }
+
+    .wrapper {
+        margin: 10vw;
+        width: 345vw;
+        /* overflow: hidden; */
+        overflow-x:  scroll;
+    }
+
+    .item {
+        display: inline-block;
+        height: 13vw;
+        width: 13vw;
+        border: 1px solid gray;
+        /*float: right;*/
+    }
+
+    .flowView {
+        height: 13vw;
+        width: 13vw;
+        border: 1px solid black;
+        position: absolute;
+        left: 2vw;
+        top: 2vw;
+    }
+
+    .nextBtn {
+        background: pink;
+        padding: 20vw;
+        margin: 0 auto;
+        margin-top: 50vw;
+        text-align: center;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="scrollBox">
+            <div id="wrapper" class="wrapper">
+                <div class="scroller" id="scroller">
+                    <div class="item" v-for="n in 25">{{n}}</div>
+                    <!-- <div class="flowView"></div> -->
+                </div>
+            </div>
+        </div>
+        <div class="nextBtn" v-on:click="nextBtn()">下一个</div>
+    </div>
+    <script type="text/javascript">
+    var app = new Vue({
+        el: "#app",
+        data: {},
+        methods: {
+            nextBtn: function() {
+                console.log("next....");
+            }
+        }
+    })
+
+    var startX;
+    var moveX;
+    var distanceX;
+    $("#scroller").on('touchstart', function(e) {
+        startX = e.touches[0].clientX-$("#wrapper").offset().left;
+        console.log(startX);
+    })
+
+    $("#scroller").on('touchmove', function(e) {
+        //set({ left: offsetX + distanceX });
+        moveX = e.touches[0].clientX;
+    })
+    $("#scroller").on('touchend', function(e) {
+    	console.log(e);
+    	touchendX=moveX-$("#wrapper").offset().left;
+        // var touch = e.originalEvent.targetTouches[0];
+        // var touchx=e.changedTouches[0].clientX;
+        // moveX = getCanvasPos(touch).x;
+        // moveX = e.touches[0].clientX;
+        // distanceX = moveX - startX;
+        // var leftEdge = $(".item").eq(0).width() * 7;
+        // if (-100 < distanceX || distanceX < 100) {
+        //     $("#scroller").offset({ left: leftEdge });
+        //     startX = moveX;
+        console.log("ssss"+touchendX);
+  		// startX = e.touches[0].clientX;
+    })
+
+    </script>
+</body>
+
+</html>
