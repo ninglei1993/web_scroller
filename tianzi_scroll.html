@@ -19,11 +19,14 @@
 
     .wrapper {
         margin: 10vw;
-        width: 345vw;
+        width: 80vw;
         /* overflow: hidden; */
-        overflow-x:  scroll;
+        overflow-x: hidden;
     }
 
+.scroller{
+	width: 345vw;
+}
     .item {
         display: inline-block;
         height: 13vw;
@@ -97,7 +100,8 @@
     	var velocity=distanceX/((endTime-startTime)/1000);
     	velocity= Math.abs(velocity);
     	if(velocity>minV&&(distanceX>minX||distanceX<-1*minX)){
-    		console.log("xxxxx");
+    		var offsetValue = $(".item").eq(0).width() * 7;
+    		$("#scroller").offset({ left: -1*offsetValue });
     	}
     	
     	// touchendX=moveX-$("#wrapper").offset().left;
