@@ -65,6 +65,49 @@
         display: inline-block;
         margin: 0 auto;
     }
+
+    .clearWrapper {
+        width: 300px;
+        text-align: right;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .clearBtn {
+        font-size: 12px;
+        line-height: 16px;
+        color: #ea9299;
+        margin-left: 4px;
+    }
+
+    .btnWrapper {
+        width: 300px;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .btnWrapper button {
+        width: 75px;
+        height: 36px;
+        background-color: lightpink;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .nextBtn,
+    .finishBtn {
+        display: inline-block;
+        background-color: #fcc7cb;
+        border: 2px solid #fff;
+        border-radius: 100px;
+        width: 110px;
+        color: #fff;
+        box-shadow: 0 1px 3px 0 #888;
+        font-size: 16px;
+        /*	line-height:24px;
+			padding-top:12px;
+			padding-bottom:12px;*/
+    }
     </style>
 </head>
 
@@ -79,11 +122,21 @@
                 </div>
             </div>
         </div>
-        <div class="nextBtn" id="nextBtn">下一个</div>
+        <!-- <div class="nextBtn" id="nextBtn">下一个</div>
+        <button class="finishBtn" onclick="complete()">完成</button> -->
+        <div class="btnWrapper">
+            <button class="nextBtn" id="nextBtn">下一个</button>
+            <button class="finishBtn" onclick="complete()">完成</button>
+        </div>
+        <div class="clearWrapper">
+            <image src='tianzige/clearBtn.png' style='display:inline-block;width:14px;height:14px;margin-right: 4px;'></image>
+            <span class="clearBtn" onclick="clearIt()">清除</span>
+        </div>
     </div>
     <div class="bigCanvasDiv">
         <canvas id="bigCanvas" class="bigCanvas" style="background: url('tianzige/tianzi-big.png');background-size: cover;"></canvas>
     </div>
+    <canvas id="resultCanvas" class="resultCanvas" width="300px" height="75px" style="background:#FAF4F2"></canvas>
     <script type="text/javascript">
     var app = new Vue({
         el: "#app",
@@ -129,6 +182,11 @@
 
     //var ctxInfoArr=[{ctx:ctx1,src:''},{ctx:ctx2,src:''},{ctx:ctx3,src:''},{ctx:ctx4,src:''}];
     var currentCtx;
+
+    var ctxResult = document.getElementById('resultCanvas').getContext("2d");
+
+    var itemWidth = $(".item").eq(0).width();
+    var itemHeight = $(".item").eq(0).height();
     $(function() {
         //循环获得 canvasId
         draw();
@@ -162,8 +220,6 @@
             mousePressed = false;
         });
         ////*******  需要特殊处理
-        //*******   currentCtx.moveTo(beginX/4, beginY/4);
-        //*******  currentCtx.lineTo(x/4, y/4);
         function drawWord(x, y) {
             ctxBig.beginPath();
             ctxBig.moveTo(beginX, beginY);
@@ -206,14 +262,24 @@
             ctxInfoArr.push(obj);
         }
 
-        // $ctx.fillStyle = '#f00';
-        // $ctx.fillRect(50, 50, 100, 100);
-        // $ctx.strokeStyle = '#ff0';
-        // $ctx.lineWidth = 10;
-        // $ctx.strokeRect(50, 50, 100, 100);
     }
-    ////*******  需要特殊处理       
-    ////*******  需要特殊处理  
+
+    function clearIt() {
+        ctxBig.clearRect(0, 0, 300, 300);
+        currentCtx.clearRect(0, 0, itemWidth, itemHeight);
+        ctxInfoArr[scrollItemIndex].src = '';
+    }
+
+    function complete() {
+
+        for (var i = 0; i < ctxInfoArr.length; i++) {
+            var itemctx = ctxInfoArr[i].ctx; //canvas对象
+
+            var data = itemctx.getImageData(0, 0, itemWidth, itemHeight);
+            ctxResult.putImageData(data, i * itemWidth, 0, 0, 0, itemWidth, itemHeight);
+        }
+
+    }
 
 
     $("#scroller").on('touchstart', function(e) {
@@ -318,7 +384,7 @@
             $(".flowView").eq(0).offset({ left: currentItemLeft });
 
 
-        
+
         })
     })
     </script>
