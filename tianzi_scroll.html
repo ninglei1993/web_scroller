@@ -18,20 +18,22 @@
     }
 
     .wrapper {
-        margin: 10vw;
-        width: 80vw;
+        margin: 8vw;
+        width: 84vw;
         /* overflow: hidden; */
         overflow-x: hidden;
     }
 
-.scroller{
-	width: 345vw;
-}
+    .scroller {
+        width: 345vw;
+    }
+
     .item {
         display: inline-block;
-        height: 13vw;
-        width: 13vw;
+        height: 12vw;
+        width: 12vw;
         border: 1px solid gray;
+        border-right: none;
         /*float: right;*/
     }
 
@@ -78,33 +80,48 @@
     })
 
     var startX;
-    var moveX;
     var startTime;
     var endTime;
-    var minV=300;// 最小滑动速度
-    var minX=150;// 最小滑动距离
+    var minV = 300; // 最小滑动速度
+    var minX = 150; // 最小滑动距离
+    var itemNum = 6; //完全显示的item 数量
+    var scrollPageIndex = 0; // 当前滑动到第几屏
+    var scrollPageWidth = $(".item").eq(0).width() * itemNum + itemNum; //每次滑动的宽度
     $("#scroller").on('touchstart', function(e) {
-    	startTime=new Date().getTime();
+        startTime = new Date().getTime();
         startX = e.touches[0].clientX;
         console.log(startTime);
     })
 
     $("#scroller").on('touchmove', function(e) {
         //set({ left: offsetX + distanceX });
-        moveX = e.touches[0].clientX;
+        // moveX = e.touches[0].clientX;
     })
     $("#scroller").on('touchend', function(e) {
-    	var endX=e.changedTouches[0].clientX;
-    	var distanceX=endX-startX;
-    	endTime=new Date().getTime();
-    	var velocity=distanceX/((endTime-startTime)/1000);
-    	velocity= Math.abs(velocity);
-    	if(velocity>minV&&(distanceX>minX||distanceX<-1*minX)){
-    		var offsetValue = $(".item").eq(0).width() * 7;
-    		$("#scroller").offset({ left: -1*offsetValue });
-    	}
-    	
-    	// touchendX=moveX-$("#wrapper").offset().left;
+        var endX = e.changedTouches[0].clientX;
+        var distanceX = endX - startX;
+        endTime = new Date().getTime();
+        var velocity = distanceX / ((endTime - startTime) / 1000);
+        velocity = Math.abs(velocity);
+        // 根据速度判断滑动
+        if (velocity > minV && distanceX > minX) {
+        	if(scrollPageIndex==0){
+        		return;
+        	}
+        	scrollPageIndex--;
+            var currentOffset = $("#scroller").offset().left;
+            $("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
+        } else if (velocity > minV && distanceX < -1 * minX) {
+        	//从右向左滑动
+            if(scrollPageIndex==3){
+        		return;
+        	}
+        	scrollPageIndex++;
+            var currentOffset = $("#scroller").offset().left;
+            $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
+        }
+
+        // touchendX=moveX-$("#wrapper").offset().left;
 
         // var touch = e.originalEvent.targetTouches[0];
         // var touchx=e.changedTouches[0].clientX;
@@ -115,10 +132,9 @@
         // if (-100 < distanceX || distanceX < 100) {
         //     $("#scroller").offset({ left: leftEdge });
         //     startX = moveX;
-    
-  		// startX = e.touches[0].clientX;
-    })
 
+        // startX = e.touches[0].clientX;
+    })
     </script>
 </body>
 
