@@ -96,10 +96,10 @@
     function resizeCanvas() {
         $(".itemCanvas").attr("width", $(".item").eq(0).width());
         $(".itemCanvas").attr("height", $(".item").eq(0).height());
-         $(".bigCanvas").attr("width", $(".bigCanvasDiv").eq(0).width());
+        $(".bigCanvas").attr("width", $(".bigCanvasDiv").eq(0).width());
         $(".bigCanvas").attr("height", $(".bigCanvasDiv").eq(0).height());
         // ctx.fillStyle = "yellow";
-       // $(".bigCanvas").fillRect(0, 0, $(".bigCanvasDiv").eq(0).width(), $(".bigCanvasDiv").eq(0).height());
+        // $(".bigCanvas").fillRect(0, 0, $(".bigCanvasDiv").eq(0).width(), $(".bigCanvasDiv").eq(0).height());
     };
 
     resizeCanvas();
@@ -120,19 +120,19 @@
     var pageSize = itemSize / itemPageNum - 1;
 
     //h5Canvas相关
-   // var currentIndex = scrollItemIndex; //假定当前canvas currentIndex=0;
+    // var currentIndex = scrollItemIndex; //假定当前canvas currentIndex=0;
     var ctxInfoArr = [];
     var ctxBig = document.getElementById('bigCanvas').getContext("2d");
 
     var canvasBig = document.getElementById('bigCanvas');
-    var times=Math.floor(80/12);
+    var times = Math.floor(80 / 12);
 
     //var ctxInfoArr=[{ctx:ctx1,src:''},{ctx:ctx2,src:''},{ctx:ctx3,src:''},{ctx:ctx4,src:''}];
     var currentCtx;
     $(function() {
         //循环获得 canvasId
         draw();
-		currentCtx=ctxInfoArr[scrollItemIndex].ctx;
+        currentCtx = ctxInfoArr[scrollItemIndex].ctx;
         var beginX, beginY;
         var mousePressed;
 
@@ -198,7 +198,7 @@
             var myCanvas = document.getElementById('canvas_' + i); //canvas对象
             if (myCanvas == null) return false;
             var itemctx = myCanvas.getContext('2d'); //获取canvas对象图形上下文
-           
+
             var obj = {
                 ctx: itemctx,
                 src: ''
@@ -212,8 +212,8 @@
         // $ctx.lineWidth = 10;
         // $ctx.strokeRect(50, 50, 100, 100);
     }
-  ////*******  需要特殊处理       
-  ////*******  需要特殊处理  
+    ////*******  需要特殊处理       
+    ////*******  需要特殊处理  
 
 
     $("#scroller").on('touchstart', function(e) {
@@ -253,6 +253,11 @@
     })
 
     $("#nextBtn").click(function() {
+
+        //保存当前item 的src
+        var imgData = ctxBig.getImageData(0, 0, 300, 300);
+        ctxInfoArr[scrollItemIndex].src = imgData;
+
         if (scrollItemIndex >= itemSize - 1) {
             // 最后一页
             if (scrollPageIndex != pageSize) {
@@ -262,7 +267,17 @@
         } else {
             scrollItemIndex++; //高亮的格子
 
-            //滚动页面
+            // ----------------获取下一个item的src--------------//
+            currentCtx = ctxInfoArr[scrollItemIndex].ctx;
+            if (ctxInfoArr[scrollItemIndex].src) {
+                // ctxBig.clearRect(0,0,300,300);
+                ctxBig.clearRect(0, 0, 300, 300);
+                ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
+            } else {
+                ctxBig.clearRect(0, 0, 300, 300);
+            }
+
+            // --------------------滚动页面--------------------//
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
@@ -273,30 +288,26 @@
             $(".flowView").eq(0).offset({ left: currentItemLeft })
         }
 
-           //先保存
-        var imgData = ctxBig.getImageData(0, 0, 300, 300);
-        ctxInfoArr[scrollItemIndex].src = imgData;
-
-        // currentCtx.putImageData(imgData,10,70);
-
-
-        currentCtx = ctxInfoArr[scrollItemIndex].ctx;
-
-
-        if (ctxInfoArr[scrollItemIndex].src) {
-            // ctxBig.clearRect(0,0,300,300);
-            ctxBig.clearRect(0, 0, 300, 300);
-            ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
-        } else {
-            ctxBig.clearRect(0, 0, 300, 300);
-        }
-
     })
 
     $(".item").each(function(index) {
         $(this).click(function() {
+            //保存当前item 的src
+            var imgData = ctxBig.getImageData(0, 0, 300, 300);
+            ctxInfoArr[scrollItemIndex].src = imgData;
+
             scrollItemIndex = index; //高亮的格子
-            //滚动页面
+
+            //-----------获取itemsrc-----------//
+            currentCtx = ctxInfoArr[scrollItemIndex].ctx;
+            if (ctxInfoArr[scrollItemIndex].src) {
+                // ctxBig.clearRect(0,0,300,300);
+                ctxBig.clearRect(0, 0, 300, 300);
+                ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
+            } else {
+                ctxBig.clearRect(0, 0, 300, 300);
+            }
+            //-------------滚动页面------------//
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
@@ -306,23 +317,8 @@
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
             $(".flowView").eq(0).offset({ left: currentItemLeft });
 
-            //canvas 点击
-                  //先保存
-  
 
-        // currentCtx.putImageData(imgData,10,70);
-
-
-        currentCtx = ctxInfoArr[scrollItemIndex].ctx;
-
-
-        if (ctxInfoArr[scrollItemIndex].src) {
-            // ctxBig.clearRect(0,0,300,300);
-            ctxBig.clearRect(0, 0, 300, 300);
-            ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
-        } else {
-            ctxBig.clearRect(0, 0, 300, 300);
-        }
+        
         })
     })
     </script>
