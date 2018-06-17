@@ -49,10 +49,21 @@
 
     .nextBtn {
         background: pink;
-        padding: 20vw;
+        padding: 5vw;
         margin: 0 auto;
-        margin-top: 50vw;
         text-align: center;
+    }
+
+    .bigCanvas {
+        border: 1px solid pink;
+        width: 80vw;
+        height: 80vw;
+    }
+
+    .bigCanvasDiv {
+        text-align: center;
+        display: inline-block;
+        margin: 0 auto;
     }
     </style>
 </head>
@@ -62,12 +73,16 @@
         <div class="scrollBox">
             <div id="wrapper" class="wrapper">
                 <div class="scroller" id="scroller">
-                    <div class="item" v-for="n in 25">{{n}}</div>
+                    <div class="item" v-for="n in 25">
+                        <canvas :id="'canvas_'+(n-1)" class="itemCanvas"></canvas>{{n}}</div>
                     <div class="flowView"></div>
                 </div>
             </div>
         </div>
         <div class="nextBtn" id="nextBtn">下一个</div>
+    </div>
+    <div class="bigCanvasDiv">
+        <canvas id="bigCanvas" class="bigCanvas" style="background: url('tianzige/tianzi-big.png');background-size: cover;"></canvas>
     </div>
     <script type="text/javascript">
     var app = new Vue({
@@ -78,6 +93,16 @@
         }
     })
 
+    function resizeCanvas() {
+        $(".itemCanvas").attr("width", $(".item").eq(0).width());
+        $(".itemCanvas").attr("height", $(".item").eq(0).height());
+         $(".bigCanvas").attr("width", $(".bigCanvasDiv").eq(0).width());
+        $(".bigCanvas").attr("height", $(".bigCanvasDiv").eq(0).height());
+        // ctx.fillStyle = "yellow";
+       // $(".bigCanvas").fillRect(0, 0, $(".bigCanvasDiv").eq(0).width(), $(".bigCanvasDiv").eq(0).height());
+    };
+
+    resizeCanvas();
     var startX;
     var startTime;
     var endTime;
@@ -93,6 +118,103 @@
     var scrollItemIndex = 0; //当前选择框位置 
     var scrollPageWidth = $(".item").eq(0).width() * itemPageNum + itemPageNum; //每次滑动的宽度
     var pageSize = itemSize / itemPageNum - 1;
+
+    //h5Canvas相关
+   // var currentIndex = scrollItemIndex; //假定当前canvas currentIndex=0;
+    var ctxInfoArr = [];
+    var ctxBig = document.getElementById('bigCanvas').getContext("2d");
+
+    var canvasBig = document.getElementById('bigCanvas');
+    var times=Math.floor(80/12);
+
+    //var ctxInfoArr=[{ctx:ctx1,src:''},{ctx:ctx2,src:''},{ctx:ctx3,src:''},{ctx:ctx4,src:''}];
+    var currentCtx;
+    $(function() {
+        //循环获得 canvasId
+        draw();
+		currentCtx=ctxInfoArr[scrollItemIndex].ctx;
+        var beginX, beginY;
+        var mousePressed;
+
+        $("#bigCanvas").on('touchstart', function(e) {
+            event.preventDefault();
+            var touch = e.originalEvent.targetTouches[0];
+
+            // var y = touch.pageY;
+            mousePressed = true;
+            beginX = getCanvasPos(touch).x;
+            beginY = getCanvasPos(touch).y;
+            console.log(beginX, beginY);
+        });
+
+        $("#bigCanvas").on('touchmove', function(e) {
+            event.preventDefault();
+            var touch = e.originalEvent.targetTouches[0];
+            if (mousePressed) {
+                //drawWord 传入鼠标在canvas中的坐标
+                drawWord(getCanvasPos(touch).x, getCanvasPos(touch).y);
+            }
+        });
+
+
+        $("#bigCanvas").on('touchend', function(e) {
+            event.preventDefault();
+            mousePressed = false;
+        });
+        ////*******  需要特殊处理
+        //*******   currentCtx.moveTo(beginX/4, beginY/4);
+        //*******  currentCtx.lineTo(x/4, y/4);
+        function drawWord(x, y) {
+            ctxBig.beginPath();
+            ctxBig.moveTo(beginX, beginY);
+            ctxBig.lineTo(x, y);
+            ctxBig.closePath();
+            ctxBig.stroke();
+
+            console.log(x, y);
+            currentCtx.beginPath();
+            currentCtx.moveTo(beginX / times, beginY / times);
+            currentCtx.lineTo(x / times, y / times);
+            currentCtx.closePath();
+            currentCtx.stroke();
+
+            beginX = x;
+            beginY = y;
+
+        }
+
+        function getCanvasPos(e) {
+            var rect = canvasBig.getBoundingClientRect();
+            return {
+                x: (e.pageX - rect.left),
+                y: (e.pageY - rect.top)
+            };
+        }
+
+    })
+
+    function draw() {
+        for (var i = 0; i < 25; i++) {
+            var myCanvas = document.getElementById('canvas_' + i); //canvas对象
+            if (myCanvas == null) return false;
+            var itemctx = myCanvas.getContext('2d'); //获取canvas对象图形上下文
+           
+            var obj = {
+                ctx: itemctx,
+                src: ''
+            }
+            ctxInfoArr.push(obj);
+        }
+
+        // $ctx.fillStyle = '#f00';
+        // $ctx.fillRect(50, 50, 100, 100);
+        // $ctx.strokeStyle = '#ff0';
+        // $ctx.lineWidth = 10;
+        // $ctx.strokeRect(50, 50, 100, 100);
+    }
+  ////*******  需要特殊处理       
+  ////*******  需要特殊处理  
+
 
     $("#scroller").on('touchstart', function(e) {
         startTime = new Date().getTime();
@@ -151,11 +273,29 @@
             $(".flowView").eq(0).offset({ left: currentItemLeft })
         }
 
+           //先保存
+        var imgData = ctxBig.getImageData(0, 0, 300, 300);
+        ctxInfoArr[scrollItemIndex].src = imgData;
+
+        // currentCtx.putImageData(imgData,10,70);
+
+
+        currentCtx = ctxInfoArr[scrollItemIndex].ctx;
+
+
+        if (ctxInfoArr[scrollItemIndex].src) {
+            // ctxBig.clearRect(0,0,300,300);
+            ctxBig.clearRect(0, 0, 300, 300);
+            ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
+        } else {
+            ctxBig.clearRect(0, 0, 300, 300);
+        }
+
     })
 
     $(".item").each(function(index) {
         $(this).click(function() {
-            scrollItemIndex=index; //高亮的格子
+            scrollItemIndex = index; //高亮的格子
             //滚动页面
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
@@ -164,7 +304,25 @@
             }
             //滚动选择框
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
-            $(".flowView").eq(0).offset({ left: currentItemLeft })
+            $(".flowView").eq(0).offset({ left: currentItemLeft });
+
+            //canvas 点击
+                  //先保存
+  
+
+        // currentCtx.putImageData(imgData,10,70);
+
+
+        currentCtx = ctxInfoArr[scrollItemIndex].ctx;
+
+
+        if (ctxInfoArr[scrollItemIndex].src) {
+            // ctxBig.clearRect(0,0,300,300);
+            ctxBig.clearRect(0, 0, 300, 300);
+            ctxBig.putImageData(ctxInfoArr[scrollItemIndex].src, 0, 0);
+        } else {
+            ctxBig.clearRect(0, 0, 300, 300);
+        }
         })
     })
     </script>
