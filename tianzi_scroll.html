@@ -194,7 +194,8 @@
     var itemHeight = $(".item").eq(0).height();
 
     var isCanTouch = true;
-    var animateDuration = 1000;
+    var animateDurationLong = 700;
+    var animateDurationShort=300;
     var isNeedAnimation = true;
 
     $(function() {
@@ -262,7 +263,8 @@
     function draw() {
         for (var i = 0; i < 25; i++) {
             var myCanvas = document.getElementById('canvas_' + i); //canvas对象
-            if (myCanvas == null) return false;
+            if (myCanvas == null) 
+            	return false;
             var itemctx = myCanvas.getContext('2d'); //获取canvas对象图形上下文
 
             var obj = {
@@ -274,12 +276,14 @@
 
     }
 
+    //-------------------清除按钮---------------------//
     function clearIt() {
         ctxBig.clearRect(0, 0, 300, 300);
         currentCtx.clearRect(0, 0, itemWidth, itemHeight);
         ctxInfoArr[scrollItemIndex].src = '';
     }
 
+    //-------------------点击完成---------------------//
     function complete() {
 
         for (var i = 0; i < ctxInfoArr.length; i++) {
@@ -291,10 +295,11 @@
 
     }
 
-    function moveAnimation(moveDitance) {
+    //---------------scroller的滑动动画---------------//
+    function moveAnimation(moveDitance,isLong) {
         if (isNeedAnimation) {
             $("#scroller").animate({ left: moveDitance - leftEdge }, { //此处需要减去leftEfge的值，因为animate的left不是从屏幕左边距开始的。
-                duration: animateDuration,
+                duration: isLong?animateDurationLong:animateDurationShort,
                 start: function() {
                     isCanTouch = false;
                 },
@@ -308,6 +313,7 @@
 
     }
 
+    //⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️处理滑动事件⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️⤵️//
     $("#scroller").on('touchstart', function(e) {
         if (!isCanTouch) {
             return;
@@ -335,7 +341,7 @@
             }
             scrollPageIndex--;
             var currentOffset = $("#scroller").offset().left;
-            moveAnimation(1 * scrollPageWidth + currentOffset);
+            moveAnimation(1 * scrollPageWidth + currentOffset,true);
 
         } else if (velocity > minV && distanceX < -1 * minX) {
             //从右向左滑动
@@ -344,11 +350,14 @@
             }
             scrollPageIndex++;
             var currentOffset = $("#scroller").offset().left;
-            moveAnimation(-1 * scrollPageWidth + currentOffset);
+            moveAnimation(-1 * scrollPageWidth + currentOffset,true);
         }
 
     })
+    //⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️处理滑动事件⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️⤴️//
 
+
+    //--------------------点击下一个---------------------//
     $("#nextBtn").click(function() {
 
         //保存当前item 的src
@@ -360,12 +369,25 @@
             if (scrollPageIndex != pageSize) {
                 scrollPageIndex = pageSize;
                 // $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
-                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+ leftEdge,false);
+                // $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
         } else {
             scrollItemIndex++; //高亮的格子
 
-            // ----------------获取下一个item的src--------------//
+            //滚动页面
+            var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
+            if (needScrollPageIndex <= pageSize) {
+                scrollPageIndex = needScrollPageIndex;
+                //$("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+ leftEdge,false);
+                // /$("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
+            }
+            //滚动选择框
+            var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
+            $(".flowView").eq(0).offset({ left: currentItemLeft })
+
+            // 获取下一个item的src
             currentCtx = ctxInfoArr[scrollItemIndex].ctx;
             if (ctxInfoArr[scrollItemIndex].src) {
                 // ctxBig.clearRect(0,0,300,300);
@@ -375,20 +397,11 @@
                 ctxBig.clearRect(0, 0, 300, 300);
             }
 
-            // --------------------滚动页面--------------------//
-            var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
-            if (needScrollPageIndex <= pageSize) {
-                scrollPageIndex = needScrollPageIndex;
-                //$("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
-                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
-            }
-            //滚动选择框
-            var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
-            $(".flowView").eq(0).offset({ left: currentItemLeft })
         }
 
     })
 
+    //--------------------点击某一个item---------------------//
     $(".item").each(function(index) {
         $(this).click(function() {
             //保存当前item 的src
@@ -397,7 +410,7 @@
 
             scrollItemIndex = index; //高亮的格子
 
-            //-----------获取itemsrc-----------//
+            //获取item src
             currentCtx = ctxInfoArr[scrollItemIndex].ctx;
             if (ctxInfoArr[scrollItemIndex].src) {
                 // ctxBig.clearRect(0,0,300,300);
@@ -406,17 +419,16 @@
             } else {
                 ctxBig.clearRect(0, 0, 300, 300);
             }
-            //-------------滚动页面------------//
+            //滚动页面
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
-                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
+                // $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+leftEdge,false);
             }
             //滚动选择框
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
             $(".flowView").eq(0).offset({ left: currentItemLeft });
-
-
 
         })
     })
