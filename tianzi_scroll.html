@@ -195,13 +195,16 @@
 
     var isCanTouch = true;
     var animateDurationLong = 700;
-    var animateDurationShort=300;
+    var animateDurationShort = 300;
     var isNeedAnimation = true;
 
     $(function() {
         //循环获得 canvasId
+
         draw();
         currentCtx = ctxInfoArr[scrollItemIndex].ctx;
+        currentCtx.fillStyle = "#fff";
+        currentCtx.fillRect(0, 0, $(".item").eq(0).width, $(".item").eq(0).height);
         var beginX, beginY;
         var mousePressed;
 
@@ -232,6 +235,7 @@
         });
         ////*******  需要特殊处理
         function drawWord(x, y) {
+            ctxBig.strokeStyle = "blue";
             ctxBig.beginPath();
             ctxBig.moveTo(beginX, beginY);
             ctxBig.lineTo(x, y);
@@ -240,6 +244,7 @@
 
             console.log(x, y);
             currentCtx.beginPath();
+            currentCtx.strokeStyle = "blue";
             currentCtx.moveTo(beginX / times, beginY / times);
             currentCtx.lineTo(x / times, y / times);
             currentCtx.closePath();
@@ -263,8 +268,8 @@
     function draw() {
         for (var i = 0; i < 25; i++) {
             var myCanvas = document.getElementById('canvas_' + i); //canvas对象
-            if (myCanvas == null) 
-            	return false;
+            if (myCanvas == null)
+                return false;
             var itemctx = myCanvas.getContext('2d'); //获取canvas对象图形上下文
 
             var obj = {
@@ -285,21 +290,25 @@
 
     //-------------------点击完成---------------------//
     function complete() {
-
+        // ctxResult.fillStyle = "#fff";
+        // ctxResult.fillRect(0, 0, $("#resultCanvas").eq(0).width, $("#resultCanvas").eq(0).height);
         for (var i = 0; i < ctxInfoArr.length; i++) {
             var itemctx = ctxInfoArr[i].ctx; //canvas对象
 
             var data = itemctx.getImageData(0, 0, itemWidth, itemHeight);
+
             ctxResult.putImageData(data, i * itemWidth, 0, 0, 0, itemWidth, itemHeight);
         }
-
+        var canvas = document.getElementById("resultCanvas");
+        var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+        alert(dataURL);
     }
 
     //---------------scroller的滑动动画---------------//
-    function moveAnimation(moveDitance,isLong) {
+    function moveAnimation(moveDitance, isLong) {
         if (isNeedAnimation) {
             $("#scroller").animate({ left: moveDitance - leftEdge }, { //此处需要减去leftEfge的值，因为animate的left不是从屏幕左边距开始的。
-                duration: isLong?animateDurationLong:animateDurationShort,
+                duration: isLong ? animateDurationLong : animateDurationShort,
                 start: function() {
                     isCanTouch = false;
                 },
@@ -341,7 +350,7 @@
             }
             scrollPageIndex--;
             var currentOffset = $("#scroller").offset().left;
-            moveAnimation(1 * scrollPageWidth + currentOffset,true);
+            moveAnimation(1 * scrollPageWidth + currentOffset, true);
 
         } else if (velocity > minV && distanceX < -1 * minX) {
             //从右向左滑动
@@ -350,7 +359,7 @@
             }
             scrollPageIndex++;
             var currentOffset = $("#scroller").offset().left;
-            moveAnimation(-1 * scrollPageWidth + currentOffset,true);
+            moveAnimation(-1 * scrollPageWidth + currentOffset, true);
         }
 
     })
@@ -369,7 +378,7 @@
             if (scrollPageIndex != pageSize) {
                 scrollPageIndex = pageSize;
                 // $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
-                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+ leftEdge,false);
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex + leftEdge, false);
                 // $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
         } else {
@@ -380,7 +389,7 @@
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
                 //$("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
-                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+ leftEdge,false);
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex + leftEdge, false);
                 // /$("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
             //滚动选择框
@@ -424,7 +433,7 @@
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
                 // $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
-                moveAnimation(-1 * scrollPageWidth * scrollPageIndex+leftEdge,false);
+                moveAnimation(-1 * scrollPageWidth * scrollPageIndex + leftEdge, false);
             }
             //滚动选择框
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
