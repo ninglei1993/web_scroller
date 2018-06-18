@@ -3,6 +3,7 @@
 
 <head>
     <title></title>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
@@ -49,8 +50,7 @@
 
     .nextBtn {
         background: pink;
-        padding: 5vw;
-        margin: 0 auto;
+   
         text-align: center;
     }
 
@@ -69,6 +69,7 @@
     .clearWrapper {
         width: 300px;
         text-align: right;
+        margin: 0 auto;
         margin-top: 10px;
         margin-bottom: 10px;
     }
@@ -84,6 +85,7 @@
         width: 300px;
         display: flex;
         justify-content: space-around;
+        margin: 0 auto;
     }
 
     .btnWrapper button {
@@ -100,13 +102,14 @@
         background-color: #fcc7cb;
         border: 2px solid #fff;
         border-radius: 100px;
-        width: 110px;
         color: #fff;
         box-shadow: 0 1px 3px 0 #888;
         font-size: 16px;
-        /*	line-height:24px;
-			padding-top:12px;
-			padding-bottom:12px;*/
+    }
+
+    .alignWrapper{
+		display: flex;
+		flex-direction: column;
     }
     </style>
 </head>
@@ -124,17 +127,19 @@
         </div>
         <!-- <div class="nextBtn" id="nextBtn">下一个</div>
         <button class="finishBtn" onclick="complete()">完成</button> -->
-        <div class="btnWrapper">
-            <button class="nextBtn" id="nextBtn">下一个</button>
-            <button class="finishBtn" onclick="complete()">完成</button>
-        </div>
+    </div>
+    <div class="alignWrapper">
         <div class="clearWrapper">
             <image src='tianzige/clearBtn.png' style='display:inline-block;width:14px;height:14px;margin-right: 4px;'></image>
             <span class="clearBtn" onclick="clearIt()">清除</span>
         </div>
-    </div>
-    <div class="bigCanvasDiv">
-        <canvas id="bigCanvas" class="bigCanvas" style="background: url('tianzige/tianzi-big.png');background-size: cover;"></canvas>
+        <div class="bigCanvasDiv">
+            <canvas id="bigCanvas" class="bigCanvas" style="background: url('tianzige/tianzi-big.png');background-size: cover;"></canvas>
+        </div>
+        <div class="btnWrapper">
+            <button class="nextBtn" id="nextBtn">下一个</button>
+            <button class="finishBtn" onclick="complete()">完成</button>
+        </div>
     </div>
     <canvas id="resultCanvas" class="resultCanvas" width="300px" height="75px" style="background:#FAF4F2"></canvas>
     <script type="text/javascript">
@@ -159,8 +164,8 @@
     var startX;
     var startTime;
     var endTime;
-    var minV = 300; // 最小滑动速度
-    var minX = 150; // 最小滑动距离
+    var minV = 200; // 最小滑动速度
+    var minX = 50; // 最小滑动距离
     var leftEdge = $("#wrapper").offset().left;
 
 
@@ -305,7 +310,8 @@
             }
             scrollPageIndex--;
             var currentOffset = $("#scroller").offset().left;
-            $("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
+            //$("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
+            $("#scroller").animate({ left: 1 * scrollPageWidth+currentOffset-leftEdge},1000);
         } else if (velocity > minV && distanceX < -1 * minX) {
             //从右向左滑动
             if (scrollPageIndex == pageSize) {
@@ -313,7 +319,8 @@
             }
             scrollPageIndex++;
             var currentOffset = $("#scroller").offset().left;
-            $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
+            $("#scroller").animate({ left: -1 * scrollPageWidth+currentOffset-leftEdge},1000);
+            // $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
         }
 
     })
