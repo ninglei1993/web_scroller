@@ -50,7 +50,7 @@
 
     .nextBtn {
         background: pink;
-   
+
         text-align: center;
     }
 
@@ -107,9 +107,9 @@
         font-size: 16px;
     }
 
-    .alignWrapper{
-		display: flex;
-		flex-direction: column;
+    .alignWrapper {
+        display: flex;
+        flex-direction: column;
     }
     </style>
 </head>
@@ -192,6 +192,11 @@
 
     var itemWidth = $(".item").eq(0).width();
     var itemHeight = $(".item").eq(0).height();
+
+    var isCanTouch = true;
+    var animateDuration = 1000;
+    var isNeedAnimation = true;
+
     $(function() {
         //循环获得 canvasId
         draw();
@@ -286,18 +291,38 @@
 
     }
 
+    function moveAnimation(moveDitance) {
+        if (isNeedAnimation) {
+            $("#scroller").animate({ left: moveDitance - leftEdge }, { //此处需要减去leftEfge的值，因为animate的left不是从屏幕左边距开始的。
+                duration: animateDuration,
+                start: function() {
+                    isCanTouch = false;
+                },
+                complete: function() {
+                    isCanTouch = true;
+                }
+            });
+        } else {
+            $("#scroller").offset({ left: moveDitance });
+        }
+
+    }
 
     $("#scroller").on('touchstart', function(e) {
+        if (!isCanTouch) {
+            return;
+        }
         startTime = new Date().getTime();
         startX = e.touches[0].clientX;
-        console.log(startTime);
     })
 
     $("#scroller").on('touchmove', function(e) {
-        //set({ left: offsetX + distanceX });
-        // moveX = e.touches[0].clientX;
+
     })
     $("#scroller").on('touchend', function(e) {
+        if (!isCanTouch) {
+            return;
+        }
         var endX = e.changedTouches[0].clientX;
         var distanceX = endX - startX;
         endTime = new Date().getTime();
@@ -310,8 +335,8 @@
             }
             scrollPageIndex--;
             var currentOffset = $("#scroller").offset().left;
-            //$("#scroller").offset({ left: 1 * scrollPageWidth + currentOffset });
-            $("#scroller").animate({ left: 1 * scrollPageWidth+currentOffset-leftEdge},1000);
+            moveAnimation(1 * scrollPageWidth + currentOffset);
+
         } else if (velocity > minV && distanceX < -1 * minX) {
             //从右向左滑动
             if (scrollPageIndex == pageSize) {
@@ -319,8 +344,7 @@
             }
             scrollPageIndex++;
             var currentOffset = $("#scroller").offset().left;
-            $("#scroller").animate({ left: -1 * scrollPageWidth+currentOffset-leftEdge},1000);
-            // $("#scroller").offset({ left: -1 * scrollPageWidth + currentOffset });
+            moveAnimation(-1 * scrollPageWidth + currentOffset);
         }
 
     })
@@ -335,7 +359,8 @@
             // 最后一页
             if (scrollPageIndex != pageSize) {
                 scrollPageIndex = pageSize;
-                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                // $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
         } else {
             scrollItemIndex++; //高亮的格子
@@ -354,7 +379,8 @@
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
-                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                //$("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
             //滚动选择框
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
@@ -384,7 +410,7 @@
             var needScrollPageIndex = Math.floor(scrollItemIndex / itemPageNum);
             if (needScrollPageIndex <= pageSize) {
                 scrollPageIndex = needScrollPageIndex;
-                $("#scroller").offset({ left: -1 * scrollPageWidth * scrollPageIndex + leftEdge });
+                $("#scroller").animate({ left: -1 * scrollPageWidth * scrollPageIndex }, 200);
             }
             //滚动选择框
             var currentItemLeft = $(".item").eq(scrollItemIndex).offset().left;
